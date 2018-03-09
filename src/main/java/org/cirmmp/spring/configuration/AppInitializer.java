@@ -28,6 +28,7 @@ public class AppInitializer extends AbstractAnnotationConfigDispatcherServletIni
 		registration.setMultipartConfig(getMultipartConfigElement());
 	}
 
+
 	private MultipartConfigElement getMultipartConfigElement(){
 		MultipartConfigElement multipartConfigElement = new MultipartConfigElement(LOCATION, MAX_FILE_SIZE, MAX_REQUEST_SIZE, FILE_SIZE_THRESHOLD);
 		return multipartConfigElement;

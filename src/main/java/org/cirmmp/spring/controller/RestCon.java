@@ -2,6 +2,7 @@ package org.cirmmp.spring.controller;
 
 
 import com.google.gson.Gson;
+import org.cirmmp.spring.exception.EmployeeNotFoundException;
 import org.cirmmp.spring.model.FileList;
 import org.cirmmp.spring.model.Project;
 import org.cirmmp.spring.model.User;
@@ -16,8 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -45,6 +50,75 @@ public class RestCon {
     //@Autowired
     //OrdiniService ordiniService;
 
+
+
+    @RequestMapping(value="/filelistE/{id}", method=RequestMethod.GET)
+    public ResponseEntity getEmployee(@PathVariable("id") String i) throws Exception{
+        //deliberately throwing different types of exception
+        LOG.info("sono in createproject");
+        int id = Integer.parseInt(i);
+        String ssoId = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.findBySSO(ssoId);
+        //List<Project> projects =projectService.findByUserId(user.getId());
+        if (id<1){
+            throw new EmployeeNotFoundException(1);
+        } else if(id == 2){
+            throw new SQLException("SQLException, id="+id);
+        }
+        else {
+            return new ResponseEntity("pippo", HttpStatus.OK);
+        }
+//
+//        if(id==1){
+//            throw new EmployeeNotFoundException(id);
+//        }else if(id==2){
+//            throw new SQLException("SQLException, id="+id);
+//        }else if(id==3){
+//            throw new IOException("IOException, id="+id);
+//        }else if(id==10){
+//            Employee emp = new Employee();
+//            emp.setName("Pankaj");
+//            emp.setId(id);
+//            model.addAttribute("employee", emp);
+//            return new ResponseEntity(projects, HttpStatus.OK);
+//        }else {
+//            throw new Exception("Generic Exception, id="+id);
+//        }
+
+    }
+
+    @ExceptionHandler(NumberFormatException.class)
+    public ModelAndView exceptionHandlerNumber (HttpServletRequest request, Exception ex) {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.addObject("exception", ex);
+        modelAndView.addObject("url", request.getRequestURL());
+
+        modelAndView.setViewName("error");
+        return modelAndView;
+    }
+
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    @ExceptionHandler(CannotCreateTransactionException.class)
+    public ModelAndView exceptionHandlerHibernate (HttpServletRequest request, Exception ex) {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.addObject("exception", ex);
+        modelAndView.addObject("url", request.getRequestURL());
+
+        modelAndView.setViewName("error");
+        return modelAndView;
+    }
+    @ExceptionHandler(EmployeeNotFoundException.class)
+    public ModelAndView handleEmployeeNotFoundException(HttpServletRequest request, Exception ex){
+        LOG.error("Requested URL="+request.getRequestURL());
+        LOG.error("Exception Raised="+ex);
+
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.addObject("exception", ex);
+        modelAndView.addObject("url", request.getRequestURL());
+
+        modelAndView.setViewName("error");
+        return modelAndView;
+    }
 
 
     @RequestMapping(value = { "/user" },method = RequestMethod.GET,produces = {"application/json"})
