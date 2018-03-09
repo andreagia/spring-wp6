@@ -87,6 +87,9 @@ public class RestCon {
 
     }
 
+
+    //https://www.logicbig.com/tutorials/spring-framework/spring-web-mvc/exception-handler-annotation.html
+    //https://www.journaldev.com/2651/spring-mvc-exception-handling-controlleradvice-exceptionhandler-handlerexceptionresolver
     @ExceptionHandler(NumberFormatException.class)
     public ModelAndView exceptionHandlerNumber (HttpServletRequest request, Exception ex) {
         ModelAndView modelAndView = new ModelAndView();
